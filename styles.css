@@ -1,0 +1,434 @@
+/* ===== Agent Change Review ===== */
+
+/*
+ * Colours encode the KIND of change, never a judgement: blue = changed,
+ * green = added, red = removed. Everything derives from Obsidian's theme
+ * variables, so light/dark and community themes need no extra rules.
+ */
+
+/* ----- inline tints ----- */
+
+.acr-ch {
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background-color 90ms ease-out;
+}
+
+.acr-ch-replacement {
+  background: rgba(var(--color-blue-rgb), 0.13);
+  box-shadow: inset 0 -1px 0 rgba(var(--color-blue-rgb), 0.35);
+}
+
+.acr-ch-insertion {
+  background: rgba(var(--color-green-rgb), 0.14);
+  box-shadow: inset 0 -1px 0 rgba(var(--color-green-rgb), 0.35);
+}
+
+.acr-ch-replacement:hover {
+  background: rgba(var(--color-blue-rgb), 0.24);
+}
+
+.acr-ch-insertion:hover {
+  background: rgba(var(--color-green-rgb), 0.24);
+}
+
+/* A deletion has no text in the note: a slim marker sits where it was. */
+.acr-del-marker {
+  display: inline-block;
+  width: 3px;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  margin: 0 1px;
+  background: rgba(var(--color-red-rgb), 0.55);
+  border-radius: 2px;
+}
+
+.acr-del-marker:hover {
+  background: var(--color-red);
+  width: 5px;
+}
+
+/* Optional: show removed text in place, struck through (not editable). */
+.acr-del-inline {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(var(--color-red-rgb), 0.7);
+  background: rgba(var(--color-red-rgb), 0.08);
+  white-space: pre-wrap;
+}
+
+.acr-del-inline:hover {
+  background: rgba(var(--color-red-rgb), 0.16);
+}
+
+/* ----- change bars beside changed lines ----- */
+
+.cm-line.acr-line {
+  position: relative;
+}
+
+.cm-line.acr-line::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.cm-line.acr-line-replacement::before {
+  background: rgba(var(--color-blue-rgb), 0.6);
+}
+
+.cm-line.acr-line-insertion::before {
+  background: rgba(var(--color-green-rgb), 0.6);
+}
+
+.cm-line.acr-line-deletion::before {
+  background: rgba(var(--color-red-rgb), 0.6);
+}
+
+/* ----- change bubble ----- */
+
+.acr-bubble {
+  position: fixed;
+  z-index: var(--layer-menu);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-l);
+  padding: 8px 10px;
+  min-width: 220px;
+  max-width: 420px;
+  font-size: var(--font-ui-small);
+}
+
+/* Hidden while it is measured, until positioned next to its change. */
+.acr-bubble.acr-bubble-measuring {
+  visibility: hidden;
+}
+
+.acr-bubble-pinned {
+  border-color: var(--interactive-accent);
+}
+
+.acr-bubble-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.acr-bubble-kind {
+  font-weight: 600;
+  font-size: var(--font-ui-smaller);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.acr-bubble-kind-replacement {
+  color: var(--color-blue);
+}
+
+.acr-bubble-kind-insertion {
+  color: var(--color-green);
+}
+
+.acr-bubble-kind-deletion {
+  color: var(--color-red);
+}
+
+.acr-bubble-gran {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  margin-left: auto;
+}
+
+.acr-bubble-summary {
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.acr-bubble-link {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-accent);
+  font-family: var(--font-monospace);
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.acr-bubble-body {
+  max-height: 260px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+.acr-bubble-inline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.acr-bubble-old {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(var(--color-red-rgb), 0.6);
+}
+
+.acr-bubble-new {
+  color: var(--text-normal);
+  font-weight: 500;
+}
+
+.acr-bubble-added {
+  background: rgba(var(--color-green-rgb), 0.1);
+  border-left: 2px solid rgba(var(--color-green-rgb), 0.6);
+  padding: 2px 6px;
+}
+
+.acr-bubble-removed {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(var(--color-red-rgb), 0.6);
+  background: rgba(var(--color-red-rgb), 0.06);
+  border-left: 2px solid rgba(var(--color-red-rgb), 0.6);
+  padding: 2px 6px;
+}
+
+.acr-bubble-arrow,
+.acr-bubble-arrow-down {
+  color: var(--text-faint);
+}
+
+.acr-bubble-arrow-down {
+  margin: 2px 0;
+}
+
+/* Word-level detail inside a rewritten sentence/paragraph. */
+.acr-fine-eq {
+  color: var(--text-muted);
+}
+
+.acr-fine-del {
+  color: var(--color-red);
+  text-decoration: line-through;
+  background: rgba(var(--color-red-rgb), 0.08);
+}
+
+.acr-fine-ins {
+  color: var(--text-normal);
+  background: rgba(var(--color-green-rgb), 0.14);
+}
+
+.acr-bubble-toggle {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--font-ui-smaller);
+  cursor: pointer;
+}
+
+.acr-bubble-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.acr-bubble-btn {
+  font-size: var(--font-ui-smaller);
+  padding: 2px 10px;
+  height: auto;
+}
+
+/* ----- sidebar ----- */
+
+.acr-sidebar {
+  padding: 8px 10px;
+}
+
+.acr-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.acr-sidebar-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+.acr-sidebar-actions,
+.acr-item-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.acr-sidebar-empty {
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+  line-height: 1.5;
+}
+
+.acr-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.acr-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: var(--radius-s);
+}
+
+.acr-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.acr-item-main {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.acr-item-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.acr-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acr-item-deleted .acr-item-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.acr-item-meta {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+}
+
+.acr-item-meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acr-counts {
+  display: flex;
+  gap: 8px;
+  font-size: var(--font-ui-smaller);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.acr-count-changed {
+  color: var(--color-blue);
+}
+
+.acr-count-added {
+  color: var(--color-green);
+}
+
+.acr-count-removed {
+  color: var(--color-red);
+}
+
+.acr-item-time {
+  color: var(--text-faint);
+  margin-left: auto;
+}
+
+.acr-badge {
+  font-size: var(--font-ui-smaller);
+  padding: 0 6px;
+  border-radius: var(--radius-s);
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.acr-badge-created {
+  color: var(--color-green);
+  background: rgba(var(--color-green-rgb), 0.12);
+}
+
+.acr-badge-deleted {
+  color: var(--color-red);
+  background: rgba(var(--color-red-rgb), 0.12);
+}
+
+.acr-badge-renamed {
+  color: var(--color-blue);
+  background: rgba(var(--color-blue-rgb), 0.12);
+}
+
+.acr-item-actions {
+  opacity: 0;
+  transition: opacity 80ms ease-in;
+}
+
+.acr-item:hover .acr-item-actions {
+  opacity: 1;
+}
+
+.acr-icon-btn {
+  padding: 2px;
+}
+
+/* ----- deleted-file preview ----- */
+
+.acr-deleted-content {
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  background: rgba(var(--color-red-rgb), 0.05);
+  border-left: 2px solid rgba(var(--color-red-rgb), 0.5);
+  padding: 8px 12px;
+  border-radius: var(--radius-s);
+}
+
+/* ----- notice ----- */
+
+.acr-notice {
+  cursor: pointer;
+}
+
+/* Keep a deleted run and the inserted run replacing it visually apart. */
+.acr-fine-del + .acr-fine-ins {
+  margin-left: 3px;
+}
+
+/* Single-key review shortcuts, listed only while the bubble is pinned. */
+.acr-bubble-keys {
+  display: none;
+  gap: 10px;
+  margin-top: 6px;
+  color: var(--text-faint);
+  font-size: var(--font-ui-smaller);
+}
+
+.acr-bubble-pinned .acr-bubble-keys {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.acr-bubble-key kbd {
+  font-size: inherit;
+}

@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Local dev vault (see CONTRIBUTING.md)
+test_vault/
+
+# Build output (attached to GitHub releases, not committed)
+main.js
