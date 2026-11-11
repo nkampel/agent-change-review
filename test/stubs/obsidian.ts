@@ -33,7 +33,8 @@ export class Events {
 
 export class Notice {
   static messages: string[] = [];
-  noticeEl = document.createElement("div");
+  containerEl = document.createElement("div");
+  messageEl = document.createElement("div");
   constructor(message: string) {
     Notice.messages.push(message);
   }

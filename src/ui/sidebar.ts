@@ -63,8 +63,8 @@ export class PendingChangesView extends ItemView {
     });
     if (items.length > 0) {
       const actions = header.createDiv({ cls: "acr-sidebar-actions" });
-      this.iconButton(actions, "check-check", "Accept everything", () => this.everything("accept"));
-      this.iconButton(actions, "undo-2", "Reject everything", () => this.everything("reject"));
+      this.iconButton(actions, "check-check", "Accept everything", () => void this.everything("accept"));
+      this.iconButton(actions, "undo-2", "Reject everything", () => void this.everything("reject"));
     }
 
     if (items.length === 0) {

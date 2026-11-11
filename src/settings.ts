@@ -130,7 +130,7 @@ export class AgentChangeReviewSettingTab extends PluginSettingTab {
         t.setPlaceholder("Templates/\nDaily/*.md");
         t.setValue(s.excluded.join("\n"));
         t.inputEl.rows = 4;
-        t.inputEl.addEventListener("blur", async () => {
+        t.inputEl.addEventListener("blur", () => {
           const next = t
             .getValue()
             .split("\n")
@@ -138,7 +138,7 @@ export class AgentChangeReviewSettingTab extends PluginSettingTab {
             .filter(Boolean);
           if (next.join("\n") === s.excluded.join("\n")) return;
           s.excluded = next;
-          await this.plugin.saveSettings(true);
+          void this.plugin.saveSettings(true);
         });
       });
 

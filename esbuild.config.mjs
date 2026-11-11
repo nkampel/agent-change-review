@@ -2,7 +2,7 @@ import esbuild from "esbuild";
 import process from "process";
 import fs from "fs";
 import path from "path";
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 
 const watch = process.argv[2] === "watch";
 
@@ -45,7 +45,8 @@ const ctx = await esbuild.context({
     "@lezer/common",
     "@lezer/highlight",
     "@lezer/lr",
-    ...builtins,
+    ...builtinModules,
+    ...builtinModules.map((m) => `node:${m}`),
   ],
   format: "cjs",
   target: "es2020",

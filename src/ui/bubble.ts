@@ -19,10 +19,10 @@ const HIDE_DELAY = 220;
 const PREVIEW_CHARS = 600;
 
 export interface BubbleActions {
-  accept(): void;
-  reject(): void;
+  accept: () => void;
+  reject: () => void;
   /** Move on to the next change without acting on this one. */
-  next(): void;
+  next: () => void;
 }
 
 function rejectLabel(change: LogicalChange): string {
@@ -47,7 +47,7 @@ export class ChangeBubble {
   private pinned = false;
   private shownAt = 0;
   /** The document the bubble lives in (the editor's window, which may be a pop-out). */
-  private doc: Document = document;
+  private doc: Document = activeDocument;
   private current: LogicalChange | null = null;
 
   private actions: BubbleActions | null = null;

@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. Versions follow
 [semantic versioning](https://semver.org).
 
+## [Unreleased]
+
+### Changed
+- Requires Obsidian 1.8.7 or newer (was 1.6.6).
+- Release assets carry GitHub build provenance attestations.
+
+### Fixed
+- Hovering changes in a pop-out window could fail to open the bubble.
+- Code cleanups for the Obsidian community plugin review.
+
 ## [1.0.0] — 2026-11-10
 
 First public release.

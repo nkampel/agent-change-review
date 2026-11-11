@@ -53,7 +53,7 @@ Obsidian and enable the plugin under Settings → Community plugins.
 
 </details>
 
-Desktop only (Windows, macOS, Linux). Requires Obsidian 1.6.6 or newer.
+Desktop only (Windows, macOS, Linux). Requires Obsidian 1.8.7 or newer.
 
 ## Quick start
 

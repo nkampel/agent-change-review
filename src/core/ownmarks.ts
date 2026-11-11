@@ -1,4 +1,4 @@
-import { App, TAbstractFile, TFile } from "obsidian";
+import { App, TAbstractFile } from "obsidian";
 import { around } from "monkey-around";
 import { hashText } from "./hash";
 
@@ -24,6 +24,7 @@ import { hashText } from "./hash";
 const MARK_TTL = 5000;
 
 type Restore = () => void;
+type Method = (this: unknown, ...args: unknown[]) => unknown;
 
 export class OwnMarks {
   private creates = new Map<string, number>();
@@ -39,63 +40,71 @@ export class OwnMarks {
   ) {}
 
   install(): void {
-    const marks = this;
     const vault = this.app.vault;
     const fm = this.app.fileManager;
+    // Arrow helpers keep the plugin instance reachable from the wrappers below,
+    // whose own `this` must stay the wrapped object (vault / file manager).
+    const markCreate = (path: string) => this.mark(this.creates, path);
+    const markDelete = (path: string) => this.mark(this.deletes, path);
+    const writesAreOwn = () => this.writesAreOwn();
+    const markContent = (path: string, text: string) => this.markContent(path, text);
+    const enterOwnWrite = () => this.ownWriteDepth++;
+    const leaveOwnWrite = () => this.ownWriteDepth--;
 
     this.wrap(vault, "create", (orig) =>
-      function (this: unknown, path: string, ...rest: unknown[]) {
-        marks.mark(marks.creates, path);
-        return orig.call(this, path, ...rest);
+      function (this: unknown, ...args: unknown[]) {
+        markCreate(args[0] as string);
+        return orig.apply(this, args);
       }
     );
     this.wrap(vault, "copy", (orig) =>
-      function (this: unknown, file: TAbstractFile, newPath: string, ...rest: unknown[]) {
-        marks.mark(marks.creates, newPath);
-        return orig.call(this, file, newPath, ...rest);
+      function (this: unknown, ...args: unknown[]) {
+        markCreate(args[1] as string);
+        return orig.apply(this, args);
       }
     );
-    for (const name of ["delete", "trash"] as const) {
+    for (const name of ["delete", "trash"]) {
       this.wrap(vault, name, (orig) =>
-        function (this: unknown, file: TAbstractFile, ...rest: unknown[]) {
-          marks.mark(marks.deletes, file.path);
-          return orig.call(this, file, ...rest);
+        function (this: unknown, ...args: unknown[]) {
+          markDelete((args[0] as TAbstractFile).path);
+          return orig.apply(this, args);
         }
       );
     }
     this.wrap(fm, "trashFile", (orig) =>
-      function (this: unknown, file: TAbstractFile, ...rest: unknown[]) {
-        marks.mark(marks.deletes, file.path);
-        return orig.call(this, file, ...rest);
+      function (this: unknown, ...args: unknown[]) {
+        markDelete((args[0] as TAbstractFile).path);
+        return orig.apply(this, args);
       }
     );
     // Link updates after a rename run inside renameFile's promise.
-    for (const name of ["renameFile", "processFrontMatter"] as const) {
+    for (const name of ["renameFile", "processFrontMatter"]) {
       this.wrap(fm, name, (orig) =>
         async function (this: unknown, ...args: unknown[]) {
-          marks.ownWriteDepth++;
+          enterOwnWrite();
           try {
             return await orig.apply(this, args);
           } finally {
             // Content marks are taken at write time, so the window only
             // needs to span the call; the events may arrive later.
-            marks.ownWriteDepth--;
+            leaveOwnWrite();
           }
         }
       );
     }
     this.wrap(vault, "modify", (orig) =>
-      function (this: unknown, file: TFile, data: string, ...rest: unknown[]) {
-        if (marks.writesAreOwn()) marks.markContent(file.path, data);
-        return orig.call(this, file, data, ...rest);
+      function (this: unknown, ...args: unknown[]) {
+        if (writesAreOwn()) markContent((args[0] as { path: string }).path, args[1] as string);
+        return orig.apply(this, args);
       }
     );
     this.wrap(vault, "process", (orig) =>
-      function (this: unknown, file: TFile, fn: (data: string) => string, ...rest: unknown[]) {
-        if (!marks.writesAreOwn()) return orig.call(this, file, fn, ...rest);
+      function (this: unknown, ...args: unknown[]) {
+        if (!writesAreOwn()) return orig.apply(this, args);
+        const [file, fn, ...rest] = args as [{ path: string }, (data: string) => string, ...unknown[]];
         const capture = (data: string): string => {
           const out = fn(data);
-          marks.markContent(file.path, out);
+          markContent(file.path, out);
           return out;
         };
         return orig.call(this, file, capture, ...rest);
@@ -116,9 +125,8 @@ export class OwnMarks {
    * Wrap `target[name]` via monkey-around, so uninstalling is safe even when
    * another plugin wrapped the same method after us.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private wrap<T extends object>(target: T, name: string, make: (orig: any) => any): void {
-    const host = target as Record<string, unknown>;
+  private wrap(target: object, name: string, make: (orig: Method) => Method): void {
+    const host = target as Record<string, Method>;
     if (typeof host[name] !== "function") return;
     this.restores.push(around(host, { [name]: make }));
   }

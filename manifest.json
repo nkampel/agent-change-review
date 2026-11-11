@@ -2,7 +2,7 @@
   "id": "agent-change-review",
   "name": "Agent Change Review",
   "version": "1.0.0",
-  "minAppVersion": "1.6.6",
+  "minAppVersion": "1.8.7",
   "description": "Review edits that agents and other tools make to your notes, right in the note. Changes are tinted blue, additions green, removals red; hover one to see what changed and accept or reject it.",
   "author": "Niko Kampel",
   "authorUrl": "https://github.com/nkampel",

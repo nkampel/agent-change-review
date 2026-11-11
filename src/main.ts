@@ -69,11 +69,12 @@ export default class AgentChangeReviewPlugin extends Plugin implements ReviewHos
     });
   }
 
-  async onunload(): Promise<void> {
+  onunload(): void {
     this.bubble.destroy();
     this.marks.uninstall();
     if (this.noticeTimer !== null) window.clearTimeout(this.noticeTimer);
-    await this.tracker.shutdown();
+    // Flushes pending snapshot writes; Obsidian does not await onunload.
+    void this.tracker.shutdown();
   }
 
   async loadSettings(): Promise<void> {
@@ -300,8 +301,8 @@ export default class AgentChangeReviewPlugin extends Plugin implements ReviewHos
         ? `Changed outside Obsidian: ${only.replace(/\.md$/, "")} — click to review`
         : `${n} files changed outside Obsidian — click to review`;
       const notice = new Notice(text, 8000);
-      notice.noticeEl.addClass("acr-notice");
-      notice.noticeEl.addEventListener("click", () => {
+      notice.containerEl.addClass("acr-notice");
+      notice.containerEl.addEventListener("click", () => {
         if (only && this.app.vault.getAbstractFileByPath(only)) void this.openFirstChange(only);
         else void this.openSidebar();
       });

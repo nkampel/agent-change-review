@@ -51,7 +51,7 @@
 /* Optional: show removed text in place, struck through (not editable). */
 .acr-del-inline {
   color: var(--text-muted);
-  text-decoration: line-through;
+  text-decoration-line: line-through;
   text-decoration-color: rgba(var(--color-red-rgb), 0.7);
   background: rgba(var(--color-red-rgb), 0.08);
   white-space: pre-wrap;
@@ -176,7 +176,7 @@
 
 .acr-bubble-old {
   color: var(--text-muted);
-  text-decoration: line-through;
+  text-decoration-line: line-through;
   text-decoration-color: rgba(var(--color-red-rgb), 0.6);
 }
 
@@ -193,7 +193,7 @@
 
 .acr-bubble-removed {
   color: var(--text-muted);
-  text-decoration: line-through;
+  text-decoration-line: line-through;
   text-decoration-color: rgba(var(--color-red-rgb), 0.6);
   background: rgba(var(--color-red-rgb), 0.06);
   border-left: 2px solid rgba(var(--color-red-rgb), 0.6);
@@ -216,7 +216,7 @@
 
 .acr-fine-del {
   color: var(--color-red);
-  text-decoration: line-through;
+  text-decoration-line: line-through;
   background: rgba(var(--color-red-rgb), 0.08);
 }
 
@@ -312,7 +312,7 @@
 }
 
 .acr-item-deleted .acr-item-name {
-  text-decoration: line-through;
+  text-decoration-line: line-through;
   color: var(--text-muted);
 }
 

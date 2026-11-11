@@ -151,16 +151,13 @@ class DeletionMarker extends WidgetType {
   }
 
   toDOM(): HTMLElement {
-    const el = document.createElement("span");
-    el.setAttribute("data-acr-id", this.id);
     if (this.inline) {
-      el.className = "acr-ch acr-del-inline";
-      el.textContent = this.text;
-    } else {
-      el.className = "acr-ch acr-del-marker";
-      el.setAttribute("aria-label", "Removed text");
+      return createSpan({ cls: "acr-ch acr-del-inline", text: this.text, attr: { "data-acr-id": this.id } });
     }
-    return el;
+    return createSpan({
+      cls: "acr-ch acr-del-marker",
+      attr: { "data-acr-id": this.id, "aria-label": "Removed text" },
+    });
   }
 
   ignoreEvent(): boolean {
@@ -319,7 +316,7 @@ export class ReviewSink implements EditorSink, PluginValue {
 
   private handleOver(e: MouseEvent): void {
     const target = (e.target as HTMLElement | null)?.closest?.("[data-acr-id]");
-    if (!(target instanceof HTMLElement)) return;
+    if (!target?.instanceOf(HTMLElement)) return;
     const change = this.changeFor(target);
     if (change) this.host.hover(this, change, target.getBoundingClientRect());
   }
