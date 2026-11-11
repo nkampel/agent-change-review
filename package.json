@@ -1,6 +1,6 @@
 {
   "name": "agent-change-review",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Obsidian plugin: review edits that agents and other tools make to your notes, inline.",
   "main": "main.js",
   "scripts": {

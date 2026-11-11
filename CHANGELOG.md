@@ -3,7 +3,7 @@
 All notable changes to this project are documented here. Versions follow
 [semantic versioning](https://semver.org).
 
-## [Unreleased]
+## [1.0.1] — 2026-11-11
 
 ### Changed
 - Requires Obsidian 1.8.7 or newer (was 1.6.6).
